@@ -1,0 +1,22 @@
+GET https://bird-live-ewe.ngrok-free.app/webhook/
+
+###
+
+POST https://bird-live-ewe.ngrok-free.app/webhook/
+Content-Type: application/json
+
+
+    {"body": "teste2"}
+
+###
+GET https://bird-live-ewe.ngrok-free.app/socket.io/?EIO=4&transport=polling&t=OusgM-t
+
+{"data": "teste"}
+
+###
+
+POST https://bird-live-ewe.ngrok-free.app/webhook/
+Content-Type: application/json
+
+
+    {"body": "teste2"}

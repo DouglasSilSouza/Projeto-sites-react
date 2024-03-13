@@ -34,14 +34,14 @@ const Chat = ({ socket }) => {
     const sendMessageEffect = async () => {
       try {
         await socket.emit('sendMessage', messages);
-
       } catch (error) {
         console.error('Erro ao enviar a mensagem:', error);
       }
     };
-
+  
     sendMessageEffect();
-  }, [messages]);
+  }, [messages, socket]);
+  
 
   const sendMessage = (e) => {
     e.preventDefault();

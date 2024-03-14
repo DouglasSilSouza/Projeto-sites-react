@@ -27,12 +27,11 @@ body {
 #container {
     display: flex;
     flex-direction: row;
-    max-width: 70%;
+    min-width: 70%;
     min-height: 95vh;
     margin: auto;
     border-radius: 3rem;
     color: #DDD;
-    margin: 3rem auto;
 }
 
 #contacts {
@@ -93,6 +92,7 @@ body {
 #content #contact {
     display: flex;
     align-items: center;
+    height: 10rem;
     justify-content: start;
     gap: 1rem;
     padding: 1.5rem;

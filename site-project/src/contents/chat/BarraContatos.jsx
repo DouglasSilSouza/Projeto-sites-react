@@ -1,14 +1,13 @@
 // import { useState } from "react"
 
-const BarraContatos = (data) => {
-  const contacts = data.data;
+const BarraContatos = ({data}) => {
 
   return (
     <>
-      <img src={contacts.image} alt={contacts.user} />
+      <img src="https://static.vecteezy.com/ti/vetor-gratis/p1/14300061-icone-de-glifo-de-perfil-de-homem-anonimo-foto-para-documentos-ilustracaoial-vetor.jpg" alt="Anonimo" />
       <span>
-        <strong>{contacts.title}</strong>
-        <p>{contacts.number}</p>
+        <strong>{data.user ?? "Anonimo" }</strong>
+        <p>{data.number}</p>
       </span>
     </>
   );

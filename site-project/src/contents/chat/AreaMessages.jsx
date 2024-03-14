@@ -1,11 +1,13 @@
-import { useRef } from "react";
+import { useRef, useLayoutEffect  } from "react";
+import useStore from "../../store/Store";
 
-const AreaMessages = async ({mensagens, user}) => {
-  if (!mensagens.trim() && !mensagens) return;
+const AreaMessages = ({mensagens}) => {
+  if (!mensagens || mensagens.length === 0) return;
+  const [userSelect, webSocket] = useStore((state) => [state.userSelect, state.webSocket]);
 
   const bottomRef = useRef()
 
-  useEffect(()=>{
+  useLayoutEffect (()=>{
     scrollDown()
   }, [mensagens])
 
@@ -17,9 +19,9 @@ const AreaMessages = async ({mensagens, user}) => {
     <>
     {
       mensagens.map((message, i) => {
-        if(message.user === user) {
+        if (userSelect.id === message.id) {
           return (
-            <div key={i} className={`message ${message.destinatary? "" : "you"}`}>
+            <div key={i} className={`message ${message.id !== webSocket.id ? "" : "you"}`}>
               <p>{message.hour}</p>
               <div className="message-body">{message.msg}</div>
             </div>
@@ -27,6 +29,7 @@ const AreaMessages = async ({mensagens, user}) => {
         }
       })
     }
+    <div ref={bottomRef} />
     </>
   )
 }

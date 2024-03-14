@@ -6,28 +6,48 @@ const io = require('socket.io')(server,{cors: {origin: 'http://localhost:5173'}}
 
 // app.use(app.json());
 
-
+const horaAtual = new Date().toLocaleString('pt-BR', {
+  hour: 'numeric',
+  minute: 'numeric',
+  hour12: false,
+  omitZeroHour: true,
+});
 
 io.on('connection', (socket) => {
   console.log('Usuário conectado!', socket.id);
 
   socket.on('disconnect', reason => {
-    console.log('Usuário desconectado!', socket.id)
-  })
+    console.log('Usuário desconectado!', socket.id);
+    
+    io.emit('desconnect_user', socket.id);
+  });
 
-  socket.on('set_username', username => {
-    socket.data.username = username
-  })
+  socket.on('set_username', (username) => {
+    socket.data.username = username;
+    const user = {
+      id: socket.id,
+      user: username,
+      number: "+55 1191234-5678"
+    };
+    io.emit('connect_user', user);
+  });
 
   socket.on('message', text => {
+    console.log(text)
     io.emit('receive_message', {
+      id: socket.id,
       msg: text,
-      authorId: socket.id,
-      destinatary: true,
-      hour: "23H49",
-      user: none,
+      hour: horaAtual
     })
+    
   })
+
+  // socket.emit('receive_message', {
+  //   text,
+  //   authorId: socket.id,
+
+  //   user: socket.data.username,
+  // })
 
 });
 
@@ -45,4 +65,6 @@ io.on('connection', (socket) => {
 //   res.send();
 // });
 
-server.listen(3000, () => console.log('listening on port 3000'));
+server.listen(3000, () => {
+  console.log('listening on port 3000');
+});

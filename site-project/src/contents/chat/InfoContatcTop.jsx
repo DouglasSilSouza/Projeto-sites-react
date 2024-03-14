@@ -1,14 +1,17 @@
+import useStore from "../../store/Store"
 
-const InfoContatcTop = (data) => {
-    const contact = data.data[0]
+const InfoContatcTop = () => {
+  const userSelect = useStore((state) => state.userSelect)
 
   return (
     <div id="contact">
-        <img src={contact.image} alt="Mulher 1"></img>
+
+      {userSelect.user ? <img src="https://static.vecteezy.com/ti/vetor-gratis/p1/14300061-icone-de-glifo-de-perfil-de-homem-anonimo-foto-para-documentos-ilustracaoial-vetor.jpg" alt="Anonimo" /> : ""}
+        
         <span>
-            <strong>{contact.title}</strong>
-            <p>{contact.number}</p>
-            <p>22:47</p>
+            <strong>{userSelect.user}</strong>
+            <p>{userSelect.number}</p>
+            <p>{userSelect.user ? "Online" : ""}</p>
         </span>
         <button type="button">Encerrar</button>
     </div>

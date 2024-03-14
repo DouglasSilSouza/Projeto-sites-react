@@ -1,70 +1,125 @@
- 
-const app = require('express')()
-const server = require('http').createServer(app);
-const io = require('socket.io')(server,{cors: {origin: 'http://localhost:5173'}} );
-// const cors = require('cors');
+const express = require("express");
+const app = express();
+const server = require("http").createServer(app);
+const io = require("socket.io")(server, {
+  cors: {
+    origin: "http://localhost:5173",
+    methods: ["GET", "POST"],
+    "Access-Control-Allow-Origin": "http://localhost:5173",
+  },
+});
+const axios = require('axios');
 
-// app.use(app.json());
+app.use(express.json());
 
-const horaAtual = new Date().toLocaleString('pt-BR', {
-  hour: 'numeric',
-  minute: 'numeric',
+const horaAtual = new Date().toLocaleString("pt-BR", {
+  hour: "numeric",
+  minute: "numeric",
   hour12: false,
   omitZeroHour: true,
 });
 
-io.on('connection', (socket) => {
-  console.log('Usuário conectado!', socket.id);
+function formatarHora(timestamp) {
+  // Convertendo o timestamp para milissegundos
+  const milissegundos = timestamp * 1000;
 
-  socket.on('disconnect', reason => {
-    console.log('Usuário desconectado!', socket.id);
-    
-    io.emit('desconnect_user', socket.id);
+  // Criando um objeto Date com o timestamp em milissegundos
+  const data = new Date(milissegundos);
+
+  // Obtendo as horas e minutos
+  const horas = data.getHours().toString().padStart(2, "0");
+  const minutos = data.getMinutes().toString().padStart(2, "0");
+
+  // Retornando a hora formatada
+  return `${horas}:${minutos}`;
+}
+
+const socketConnections = new Map();
+
+const sendMessage = async (message) => {
+  try {
+    const headers = {
+      'Content-Type': 'application/json',
+      'Authorization': `Bearer ${process.env.TOKEN_WHATSAPP}`
+    };
+
+    const data = {
+      messaging_product: "whatsapp",
+      recipient_type: "individual",
+      to: "5511953869941",
+      type: "text",
+      text: {
+        preview_url: false,
+        body: message,
+      },
+    };
+
+    const response = await axios.post("https://graph.facebook.com/v18.0/103394759172111/messages", data, { headers });
+
+    console.log(response.data);
+  } catch (error) {
+    console.error('Error:', error);
+  }
+};
+
+io.on("connection", (socket) => {
+  console.log("Usuário conectado!", socket.id);
+  socketConnections.set(socket.id, socket);
+
+  socket.on("disconnect", (reason) => {
+    console.log("Usuário desconectado!", socket.id);
+    socketConnections.delete(socket.id);
+
+    io.emit("desconnect_user", socket.id);
   });
 
-  socket.on('set_username', (username) => {
+  io.on("set_username", (username) => {
     socket.data.username = username;
     const user = {
       id: socket.id,
       user: username,
-      number: "+55 1191234-5678"
+      number: "+55 1191234-5678",
+      destinatary: false,
     };
-    io.emit('connect_user', user);
+    io.emit("connect_user", user);
   });
 
-  socket.on('message', text => {
-    console.log(text)
-    io.emit('receive_message', {
-      id: socket.id,
-      msg: text,
-      hour: horaAtual
-    })
-    
-  })
-
-  // socket.emit('receive_message', {
-  //   text,
-  //   authorId: socket.id,
-
-  //   user: socket.data.username,
-  // })
-
+  socket.on("message", (text) => {
+    sendMessage(text);
+  });
 });
 
-// app.post('/webhook', async (req, res) => {
-//   const body = req.body;
-//   console.log(body);
-//   // const text = body.entry[0].changes[0].value.messages[0].text.body
-//   // const typeMsg = body.entry[0].changes[0].value.messages[0].type
-  
-//   res.send(body)
-// });
+app.post("/webhook", async (req, res) => {
+  try {
+    const body = req.body.entry[0].changes[0].value;
+    const text = body.messages[0].text.body;
+    const wa_id = body.contacts[0].wa_id;
+    const username = body.contacts[0].profile.name;
+    const typeMsg = body.messages[0].type;
+    const hora = body.messages[0].timestamp;
 
-// app.get('/webhook', async (req, res) => {
+    const user = {
+      id: wa_id,
+      user: username,
+      number: wa_id,
+    };
 
-//   res.send();
-// });
+    io.emit("connect_user", user);
+
+    await io.emit("receive_message", {
+      id: wa_id,
+      msg: text,
+      hour: formatarHora(hora),
+      destinatary: true,
+    });
+  } catch (e) {
+    const body = req.body;
+    console.log(body);
+  }
+
+  res.send("Teste");
+});
 
 server.listen(3000, () => {
-  console.log('listening on port 3000');
+  console.log("listening on port 3000");
 });

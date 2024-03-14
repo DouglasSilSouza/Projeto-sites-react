@@ -8,7 +8,6 @@ import { useShallow } from 'zustand/react/shallow'
 
 const Chat = () => {
   const [selectedUserID, setSelectedUserID] = useState();
-  // const [messages, setMessages] = useState([]);
 
   const [lista,
     selectedUser,
@@ -30,7 +29,6 @@ const Chat = () => {
 
   useEffect(() => {
     socket.on('receive_message', data => {
-      console.log(data);
       setMessages({ id: data.id, msg: data.msg, hour: horaAtual});
     });
   
@@ -40,7 +38,7 @@ const Chat = () => {
   const sendMessage = (e) => {
     e.preventDefault();
     const messageText = e.target.elements.message.value;
-    // setMessages({ id: socket.id, msg: messageText, hour: horaAtual })
+    setMessages({ id: socket.id, msg: messageText, hour: horaAtual })
     socket.emit('message', messageText)
     e.target.elements.message.value = '';
   };

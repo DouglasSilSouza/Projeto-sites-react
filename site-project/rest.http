@@ -1,22 +1,14 @@
-GET https://bird-live-ewe.ngrok-free.app/webhook/
-
-###
-
-POST https://bird-live-ewe.ngrok-free.app/webhook/
+POST https://graph.facebook.com/v18.0/103394759172111/messages
 Content-Type: application/json
+Authorization: Bearer EAADFKzVHjHwBO51G9UeBbf7lZBjJ3vduKnoK0WXfbSFv1mfEGO2az8kQqZBiH0yAeGNAdFT7x1ZBo1C7jGKwOZB6v3iIxZA0Qatqhb5w9UPKm7Q8tE9toZAQwqbhQuN3DNrymxGQZCpsx8efm90Nvhp4D9xWSCOm0BxA1vkssZBiS3J4L3lJLpNpbrSGLdbGKZA5SBL0w8ZCXXqtyBKuMabNoZD
 
-
-    {"body": "teste2"}
-
-###
-GET https://bird-live-ewe.ngrok-free.app/socket.io/?EIO=4&transport=polling&t=OusgM-t
-
-{"data": "teste"}
-
-###
-
-POST https://bird-live-ewe.ngrok-free.app/webhook/
-Content-Type: application/json
-
-
-    {"body": "teste2"}
+{
+    "messaging_product": "whatsapp",
+    "recipient_type": "individual",
+    "to": "5511953869941",
+    "type": "text",
+    "text": {
+        "preview_url": false,
+        "body": "Teste",
+    }
+}

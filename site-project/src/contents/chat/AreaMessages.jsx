@@ -4,7 +4,7 @@ import { useShallow } from 'zustand/react/shallow'
 
 const AreaMessages = () => {
   const bottomRef = useRef();
-  const [messages, socket] = useStore(useShallow((state) => [state.messages, state.socket]));
+  const [messages, socket, userSelect] = useStore(useShallow((state) => [state.messages, state.socket, state.userSelect]));
 
   useEffect(() => {
     if (messages && messages.length > 0) {

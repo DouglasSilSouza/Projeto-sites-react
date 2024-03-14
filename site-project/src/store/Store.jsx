@@ -18,8 +18,12 @@ const useStore = create((set) => {
 
         horaAtual : horaAtual,
 
-        webSocket : [],
-        addSocket : (socket) => set((state)=> ({webSocket: socket}))
+        socket: null,
+        setSocket: (socket) => set((state) => ({ socket })),
+
+        messages: [],
+        setMessages: (data) => set((state) => ({ messages: [...state.messages, data] })),
+
     }
 });
 

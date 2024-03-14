@@ -2,15 +2,26 @@ import '../../assets/chat/chat.css'
 import BarraContatos from './BarraContatos'
 import AreaMessages from './AreaMessages'
 import InfoContatcTop from './InfoContatcTop'
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useRef } from 'react'
 import useStore from '../../store/Store'
 import { useShallow } from 'zustand/react/shallow'
 
 const Chat = () => {
   const [selectedUserID, setSelectedUserID] = useState();
-  const [messages, setMessages] = useState([]);
+  // const [messages, setMessages] = useState([]);
 
-  const [lista, selectedUser, horaAtual, webSocket] = useStore( useShallow ((state) =>[ state.lista, state.selectedUser, state.horaAtual, state.webSocket ]));
+  const [lista,
+    selectedUser,
+    horaAtual,
+    socket,
+    setMessages
+  ] = useStore( useShallow ((state) =>[
+    state.lista,
+    state.selectedUser,
+    state.horaAtual,
+    state.socket,
+    state.setMessages,
+  ]));
 
   const selectUsers = (user) => {
     setSelectedUserID(user.id);
@@ -18,20 +29,19 @@ const Chat = () => {
   };
 
   useEffect(() => {
-    webSocket.on('receive_message', data => {
+    socket.on('receive_message', data => {
       console.log(data);
-      setMessages([...messages, data]);
+      setMessages({ id: data.id, msg: data.msg, hour: horaAtual});
     });
   
-    return () => webSocket.off('receive_message');
-  }, [messages]);
-  
+    return () => socket.off('receive_message');
+  }, [socket]);
 
   const sendMessage = (e) => {
     e.preventDefault();
     const messageText = e.target.elements.message.value;
-    setMessages((prevMessages) => [...prevMessages, { id: webSocket.id, msg: messageText, hour: horaAtual }]);
-    webSocket.emit('message', messageText)
+    // setMessages({ id: socket.id, msg: messageText, hour: horaAtual })
+    socket.emit('message', messageText)
     e.target.elements.message.value = '';
   };
 
@@ -41,7 +51,7 @@ const Chat = () => {
         <nav id="contacts">
           <ul>
             {lista.map((contact) => {
-              if(contact.id === webSocket.id) return;
+              if(contact.id === socket.id) return;
               return (
                 <li
                   key={contact.id}
@@ -58,7 +68,7 @@ const Chat = () => {
         <section id="content">
           <InfoContatcTop />
           <div id="message-content">
-            <AreaMessages mensagens={messages} />
+            <AreaMessages />
           </div>
           <div id="area-input">
             <form id="form" onSubmit={(e) => sendMessage(e)}>

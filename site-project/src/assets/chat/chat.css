@@ -35,19 +35,21 @@ body {
 }
 
 #contacts {
-    padding: 1rem;
     display: flex;
     flex-direction: row;
     background-color: #00303d;
     border-radius: 3rem 0 0 3rem;
     flex: 1 2 15%;
+    overflow: auto;
+    max-height: 95vh;
 }
 
 #contacts ul {
     display: flex;
     flex-direction: column;
     flex: 1;
-    overflow: auto;
+    gap: 10px;
+    margin: 15px 5px;
 }
 
 #contacts ul li {
@@ -58,7 +60,7 @@ body {
     background-color: #003847;
     border-radius: .9rem;
     cursor: pointer;
-    margin: 5px;
+    margin-inline: 5px;
 }
 
 #contacts ul li.select {

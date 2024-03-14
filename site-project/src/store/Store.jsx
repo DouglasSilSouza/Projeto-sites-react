@@ -8,10 +8,10 @@ const horaAtual = new Date().toLocaleString('pt-BR', {
 
 const useStore = create((set) => {
     return {
-        lista: [],
-        adicionarObjeto: (objeto) => set((state) => ({ lista: [...state.lista, objeto] })),
+        usersOnline: [],
+        setUsersOnline: (newUser) => set((state) => ({ usersOnline: [...state.usersOnline.filter((user) => user.id !== newUser.id), newUser, ],})),
 
-        removerObjeto: (id) => set((state) => ({ lista: state.lista.filter((objeto) => objeto.id!== id) })),
+        removeUsersOnline: (id) => set((state) => ({ usersOnline: state.usersOnline.filter((setUsersOnline) => setUsersOnline.id!== id) })),
 
         userSelect: [],
         selectedUser: (user) => set((state) => ({userSelect: user})),
@@ -21,8 +21,36 @@ const useStore = create((set) => {
         socket: null,
         setSocket: (socket) => set((state) => ({ socket })),
 
+        salas: {},
+        setSalas: (salas) => set((state) => ({ salas: {...state.salas, ...salas } })),
+
         messages: [],
-        setMessages: (data) => set((state) => ({ messages: [...state.messages, data] })),
+        setMessages: (data) => set((state) => {
+            const updatedSalas = { ...state.salas };
+          
+            if (updatedSalas[data.idSala]) {
+              updatedSalas[data.idSala].mensagens = [...updatedSalas[data.idSala].mensagens, {
+                id: data.id,
+                msg: data.msg,
+                hour: data.hour,
+                destinatary: data.destinatary
+              }];
+            } else {
+              updatedSalas[data.idSala] = {
+                id: data.idSala,
+                mensagens: [{
+                  id: data.id,
+                  msg: data.msg,
+                  hour: data.hour,
+                  destinatary: data.destinatary
+                }],
+              };
+            }
+          
+            return { salas: updatedSalas };
+          }),
+          
+          
 
     }
 });

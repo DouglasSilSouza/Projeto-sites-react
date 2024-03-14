@@ -23,7 +23,7 @@ function formatarHora(timestamp) {
   // Convertendo o timestamp para milissegundos
   const milissegundos = timestamp * 1000;
 
-  // Criando um objeto Date com o timestamp em milissegundos
+  // Criando um setUsersOnline Date com o timestamp em milissegundos
   const data = new Date(milissegundos);
 
   // Obtendo as horas e minutos
@@ -79,7 +79,6 @@ io.on("connection", (socket) => {
       id: socket.id,
       user: username,
       number: "+55 1191234-5678",
-      destinatary: false,
     };
     io.emit("connect_user", user);
   });
@@ -110,11 +109,10 @@ app.post("/webhook", async (req, res) => {
       id: wa_id,
       msg: text,
       hour: formatarHora(hora),
-      destinatary: true,
     });
   } catch (e) {
     const body = req.body;
-    console.log(body);
+
   }
 
   res.send("Teste");

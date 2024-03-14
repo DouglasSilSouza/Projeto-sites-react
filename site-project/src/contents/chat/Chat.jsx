@@ -2,34 +2,25 @@ import '../../assets/chat/chat.css'
 import BarraContatos from './BarraContatos'
 import AreaMessages from './AreaMessages'
 import InfoContatcTop from './InfoContatcTop'
-import { useState, useEffect, useRef } from 'react'
+import { useEffect } from 'react'
 import useStore from '../../store/Store'
 import { useShallow } from 'zustand/react/shallow'
 
 const Chat = () => {
-  const [selectedUserID, setSelectedUserID] = useState();
 
-  const [lista,
-    selectedUser,
+  const [
     horaAtual,
     socket,
     setMessages
   ] = useStore( useShallow ((state) =>[
-    state.lista,
-    state.selectedUser,
     state.horaAtual,
     state.socket,
     state.setMessages,
   ]));
 
-  const selectUsers = (user) => {
-    setSelectedUserID(user.id);
-    selectedUser(user)
-  };
-
   useEffect(() => {
     socket.on('receive_message', data => {
-      setMessages({ id: data.id, msg: data.msg, hour: horaAtual});
+      setMessages({idSala: { id: data.id, msg: data.msg, hour: data.hour, destinatary: true}});
     });
   
     return () => socket.off('receive_message');
@@ -38,7 +29,7 @@ const Chat = () => {
   const sendMessage = (e) => {
     e.preventDefault();
     const messageText = e.target.elements.message.value;
-    setMessages({ id: socket.id, msg: messageText, hour: horaAtual })
+    setMessages({ id: socket.id, msg: messageText, hour: horaAtual, destinatary: false})
     socket.emit('message', messageText)
     e.target.elements.message.value = '';
   };
@@ -48,21 +39,9 @@ const Chat = () => {
       <main id="container">
         <nav id="contacts">
           <ul>
-            {lista.map((contact) => {
-              if(contact.id === socket.id) return;
-              return (
-                <li
-                  key={contact.id}
-                  onClick={() => selectUsers(contact)}
-                  className={contact.id === selectedUserID ? "select" : ""}
-                >
-                  <BarraContatos data={contact} />
-                </li>
-              );
-            })}
+            <BarraContatos />
           </ul>
         </nav>
-
         <section id="content">
           <InfoContatcTop />
           <div id="message-content">

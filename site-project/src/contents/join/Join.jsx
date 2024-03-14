@@ -8,13 +8,13 @@ import { useShallow } from 'zustand/react/shallow'
 export default function Join({ setChatVisibility }) {
     const usernameRef = useRef()
     const socketRef = useRef()
-    const [objeto, socket, setSocket] = useStore(useShallow((state) => [state.adicionarObjeto, state.socket, state.setSocket]))
+    const [setUsersOnline, socket, setSocket] = useStore(useShallow((state) => [state.setUsersOnline, state.socket, state.setSocket]))
 
     useEffect(() => {
         if (!socketRef.current) {
             socketRef.current = io.connect('https://bird-live-ewe.ngrok-free.app');
             setSocket(socketRef.current)
-            socketRef.current.on('connect_user', (usersOnline) => objeto(usersOnline));
+            socketRef.current.on('connect_user', (usersOnline) => setUsersOnline(usersOnline));
         }
     }, [socketRef.current]);
 

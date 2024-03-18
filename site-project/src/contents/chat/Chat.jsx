@@ -20,7 +20,8 @@ const Chat = () => {
 
   useEffect(() => {
     socket.on('receive_message', data => {
-      setMessages({idSala: { id: data.id, msg: data.msg, hour: data.hour, destinatary: true}});
+      console.log(data)
+      setMessages({idSala: data.idroom, datamsg: { iduser: data.iduser, msg: data.msg, hour: data.hour, destinatary: true}});
     });
   
     return () => socket.off('receive_message');

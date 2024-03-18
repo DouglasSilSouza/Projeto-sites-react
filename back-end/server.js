@@ -123,9 +123,10 @@ io.on("connection", (socket) => {
 
 });
 
-const receiveMessage = (wa_id ,message, hora) => {
+const receiveMessage = (idroom, wa_id ,message, hora) => {
   io.emit("receive_message", {
-    id: wa_id,
+    idroom: idroom,
+    iduser: wa_id,
     msg: message,
     hour: hora
   });
@@ -146,22 +147,22 @@ app.post("/webhook", async (req, res) => {
 
     if (resultRedis && resultRedis.is_valid) {
       if (resultRedis.is_valid) {
-        receiveMessage(wa_id, text, dataHora[1])
+        receiveMessage(resultRedis.id, wa_id, text, dataHora[1])
         insertMessages(resultRedis.id, wa_id, text, dataHora[1], dataHora[0])
       }
     } else {
       verificacionUser(+wa_id)
       .then(async (result) => {
         if (result.length > 0) {
+          receiveMessage(result.id, wa_id, text, dataHora[1])
           setExistsChatUserAndOpen(result[0])
         } else {
           insertRoom(+wa_id, username, +wa_id, "open", null)
           .then(async (data) => {
-            console.log(data)
-            io.emit("connect_user", data);
+            receiveMessage(data.id, wa_id, text, dataHora[1])
+            await io.emit("connect_user", data);
             setDataRoomAndUser(data.id, data)
             insertMessages(data.id, wa_id, text, dataHora[1], dataHora[0])
-            receiveMessage(wa_id, text, dataHora[1])
           });
         }
       });

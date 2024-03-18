@@ -15,17 +15,23 @@ const AreaMessages = () => {
   const scrollDown = () => {
     bottomRef.current.scrollIntoView({ behavior: "smooth" });
   };
+
+  console.log(userSelect)
   
   return (
     <>
       {
         messages && messages.length > 0 && (
-          messages.map((message, i) => (
-            <div key={i} className={`message ${message.id !== socket.id ? "" : "you"}`}>
-              <p>{message.hour}</p>
-              <div className="message-body">{message.msg}</div>
-            </div> 
-          ))
+          messages.map((message, i) => {
+            if (message.id === userSelect.id) {
+              return (
+                <div key={i} className={`message ${message.datamsg.id !== socket.id ? "" : "you"}`}>
+                <p>{message.datamsg.hour}</p>
+                <div className="message-body">{message.datamsg.msg}</div>
+              </div> 
+              )
+            }
+          })
         )
       }
       <div ref={bottomRef} />

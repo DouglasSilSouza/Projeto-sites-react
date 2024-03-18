@@ -25,32 +25,7 @@ const useStore = create((set) => {
         setSalas: (salas) => set((state) => ({ salas: {...state.salas, ...salas } })),
 
         messages: [],
-        setMessages: (data) => set((state) => {
-            const updatedSalas = { ...state.salas };
-          
-            if (updatedSalas[data.idSala]) {
-              updatedSalas[data.idSala].mensagens = [...updatedSalas[data.idSala].mensagens, {
-                id: data.id,
-                msg: data.msg,
-                hour: data.hour,
-                destinatary: data.destinatary
-              }];
-            } else {
-              updatedSalas[data.idSala] = {
-                id: data.idSala,
-                mensagens: [{
-                  id: data.id,
-                  msg: data.msg,
-                  hour: data.hour,
-                  destinatary: data.destinatary
-                }],
-              };
-            }
-          
-            return { salas: updatedSalas };
-          }),
-          
-          
+        setMessages:(messages) => set((state) => ({messages: [...state.messages, messages]})),
 
     }
 });

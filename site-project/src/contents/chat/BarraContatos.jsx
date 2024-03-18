@@ -1,7 +1,6 @@
 import useStore from "../../store/Store";
 import { useShallow } from 'zustand/react/shallow'
 
-
 const BarraContatos = () => {
   const [
     usersOnline,

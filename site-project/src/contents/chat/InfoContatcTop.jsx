@@ -1,7 +1,11 @@
 import useStore from "../../store/Store"
 
 const InfoContatcTop = () => {
-  const userSelect = useStore((state) => state.userSelect)
+  const [userSelect, socket] = useStore((state) => [state.userSelect, state.socket])
+
+  const close_service = () => {
+    socket.emit('close_service', userSelect.id)
+  };
 
   return (
     <div id="contact">
@@ -11,7 +15,7 @@ const InfoContatcTop = () => {
             <p>{userSelect.number}</p>
             <p>{userSelect.user ? "Online" : ""}</p>
         </span>
-        <button type="button">Encerrar</button>
+        <button type="button" onClick={close_service()}>Encerrar</button>
     </div>
   )
 }

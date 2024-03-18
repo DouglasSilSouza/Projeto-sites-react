@@ -3,7 +3,7 @@ require('dotenv').config();
 
 let { PGHOST, PGDATABASE, PGUSER, PGPASSWORD, ENDPOINT_ID } = process.env;
 
-const sql = postgres({
+const sql = new postgres({
   host: PGHOST,
   database: PGDATABASE,
   username: PGUSER,
@@ -15,9 +15,4 @@ const sql = postgres({
   },
 });
 
-async function getPgVersion() {
-  const result = await sql`select version()`;
-  console.log(result);
-}
-
-getPgVersion();
+module.exports = sql;

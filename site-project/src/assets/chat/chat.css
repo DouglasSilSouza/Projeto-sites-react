@@ -81,6 +81,12 @@ body {
   gap: 0.5rem;
 }
 
+#contacts ul li button {
+  padding: 15px;
+  color: #ddd;
+  background-color: #5b9643;
+}
+
 #contacts ul li span p {
   font-size: 1rem;
   opacity: 0.7;

@@ -7,19 +7,16 @@ const BarraContatos = () => {
     usersOnline,
     selectedUser,
     userSelect,
-    setSalas,
     socket,
   ] = useStore(useShallow ((state) => [
     state.usersOnline,
     state.selectedUser,
     state.userSelect,
-    state.setSalas,
     state.socket,
   ]))
 
-  const selecUser = (contact) => {
-    selectedUser(contact)
-    setSalas({id:`dest_${contact.id}_rem${socket.id}`})
+  const open_service = (socketID, contactID) => {
+    socket.emit(socketID, contactID)
   }
 
   return (
@@ -27,12 +24,13 @@ const BarraContatos = () => {
       <ul>
         {usersOnline.map((contact) => {
           return (
-            <li key={contact.id} onClick={() => selecUser(contact)} className={contact.id === userSelect.id ? "select" : ""}>
+            <li key={contact.id} onClick={() => selectedUser(contact)} className={contact.id === userSelect.id ? "select" : ""}>
               <i className="ph ph-user"></i>
               <span>
                 <strong>{contact.user ?? "Anonimo"}</strong>
                 <p>{contact.number}</p>
               </span>
+              <button type="button" onClick={open_service(socket.id, contact.id)}><i class="ph ph-check"></i></button>
             </li>
           );
         })}

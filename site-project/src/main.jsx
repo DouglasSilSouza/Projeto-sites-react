@@ -2,17 +2,12 @@ import React from 'react'
 import ReactDOM from 'react-dom/client'
 import App from './App.jsx'
 import './index.css'
-import ConMetaWhatsApp from './conMeta/ConMetaWhatsApp'
 import { createBrowserRouter, RouterProvider, Route } from "react-router-dom";
 
 const router = createBrowserRouter([
     {
         path: "/",
         element: <App />,
-    },
-    {
-      path: "conwebhook",
-      element: <ConMetaWhatsApp />,
     }
 ])
 

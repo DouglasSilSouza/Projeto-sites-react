@@ -38,9 +38,7 @@ const Chat = () => {
     <>
       <main id="container">
         <nav id="contacts">
-          <ul>
             <BarraContatos />
-          </ul>
         </nav>
         <section id="content">
           <InfoContatcTop />
@@ -50,7 +48,7 @@ const Chat = () => {
           <div id="area-input">
             <form id="form" onSubmit={(e) => sendMessage(e)}>
               <input type="text" name="message" placeholder="Digite sua mensagem" />
-              <button type="submit"><i classNameName="ph ph-paper-plane-right"></i></button>
+              <button type="submit"><i className="ph ph-paper-plane-right"></i></button>
             </form>
           </div>
         </section>

@@ -21,9 +21,9 @@ const AreaMessages = () => {
       {
         messages && messages.length > 0 && (
           messages.map((message, i) => (
-            <div key={i} classNameName={`message ${message.id !== socket.id ? "" : "you"}`}>
+            <div key={i} className={`message ${message.id !== socket.id ? "" : "you"}`}>
               <p>{message.hour}</p>
-              <div classNameName="message-body">{message.msg}</div>
+              <div className="message-body">{message.msg}</div>
             </div> 
           ))
         )

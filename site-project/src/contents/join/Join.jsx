@@ -27,7 +27,7 @@ export default function Join({ setChatVisibility }) {
     const memoizedHandleSubmit = useMemo(() => handleSubmit, [handleSubmit]);
 
     return (
-        <div classNameName={style['join-container']}>
+        <div className={style['join-container']}>
             <h2>Chat em tempo real</h2>
             <Input inputRef={usernameRef} placeholder='Nome de usuário' />
             <Button sx={{ mt: 2 }} onClick={() => memoizedHandleSubmit()} variant="contained">Entrar</Button>

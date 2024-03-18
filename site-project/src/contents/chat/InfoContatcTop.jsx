@@ -9,11 +9,11 @@ const InfoContatcTop = () => {
 
   return (
     <div id="contact">
-        {userSelect.user && <i classNameName="ph ph-user"></i>}
+        {userSelect.username && <i className="ph ph-user"></i>}
         <span>
-            <strong>{userSelect.user}</strong>
+            <strong>{userSelect.username}</strong>
             <p>{userSelect.number}</p>
-            <p>{userSelect.user ? "Online" : ""}</p>
+            <p>{userSelect.username ? "Online" : ""}</p>
         </span>
         <button type="button" onClick={close_service()}>Encerrar</button>
     </div>

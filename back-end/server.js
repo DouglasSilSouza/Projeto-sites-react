@@ -124,7 +124,6 @@ io.on("connection", (socket) => {
 });
 
 const receiveMessage = (wa_id ,message, hora) => {
-  console.log("Mensagem enviada ao front-end!")
   io.emit("receive_message", {
     id: wa_id,
     msg: message,
@@ -158,8 +157,6 @@ app.post("/webhook", async (req, res) => {
         } else {
           insertRoom(+wa_id, username, +wa_id, "open", null)
           .then(async (data) => {
-            console.log("Inserindo dados da sala e usuario...")
-            console.log("Enviando mensagen ao front-end...")
             console.log(data)
             io.emit("connect_user", data);
             setDataRoomAndUser(data.id, data)

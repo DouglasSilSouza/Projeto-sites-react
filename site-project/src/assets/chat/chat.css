@@ -67,11 +67,11 @@ body {
   outline: 2px solid #ddd;
 }
 
-#contacts ul li i {
+#contacts ul li>i {
   font-size: 4rem;
   border-radius: 50%;
   background-color: #18424e;
-  margin-right: 1rem;
+  margin-right: .2rem;
   padding: 1rem;
 }
 
@@ -82,9 +82,21 @@ body {
 }
 
 #contacts ul li button {
-  padding: 15px;
+  display: flex;
+  justify-content: center;
+  align-self: center;
+  border: none;
+  border-radius: .5rem;
+  outline: none;
+  width: 4.5rem;
+  padding: 0.5rem;
   color: #ddd;
   background-color: #5b9643;
+  margin-left: auto;
+}
+
+#contacts ul li button i {
+  font-size: 1.5rem;
 }
 
 #contacts ul li span p {

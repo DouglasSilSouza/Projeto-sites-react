@@ -22,18 +22,22 @@ const BarraContatos = () => {
   return (
     <>
       <ul>
-        {usersOnline.map((contact) => {
-          return (
-            <li key={contact.id} onClick={() => selectedUser(contact)} className={contact.id === userSelect.id ? "select" : ""}>
-              <i className="ph ph-user"></i>
-              <span>
-                <strong>{contact.user ?? "Anonimo"}</strong>
-                <p>{contact.number}</p>
-              </span>
-              <button type="button" onClick={open_service(socket.id, contact.id)}><i class="ph ph-check"></i></button>
-            </li>
-          );
-        })}
+        { 
+          socket.id === usersOnline.id ||
+          usersOnline.map((contact) => {
+            console.log(contact)
+            return (
+              <li key={contact.id} onClick={() => selectedUser(contact)} classNameName={contact.id === userSelect.id ? "select" : ""}>
+                <i classNameName="ph ph-user"></i>
+                <span>
+                  <strong>{contact.user ?? "Anonimo"}</strong>
+                  <p>{contact.number}</p>
+                </span>
+                <button type="button" onClick={open_service(socket.id, contact.id)}><i className="ph ph-check"></i></button>
+              </li>
+            );
+          })
+        }
       </ul>
     </>
   );

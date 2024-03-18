@@ -9,7 +9,7 @@ const InfoContatcTop = () => {
 
   return (
     <div id="contact">
-        {userSelect.user && <i className="ph ph-user"></i>}
+        {userSelect.user && <i classNameName="ph ph-user"></i>}
         <span>
             <strong>{userSelect.user}</strong>
             <p>{userSelect.number}</p>

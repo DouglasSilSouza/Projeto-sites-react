@@ -15,10 +15,10 @@ const insertRoom = async (idUser, userName, number, statusRoom, agent) => {
   
 const insertMessages = async (idRoom, idMessage, message, hourMessage, date) => {
     try {
-        const result = await sql`INSERT INTO messages (idroom, idmessage, message, hourmessage)
+        const result = await sql`INSERT INTO messages (idroom, idmessage, message, hourmessage, date)
             VALUES (${idRoom}, ${idMessage}, ${message}, ${hourMessage}, ${date})
             RETURNING *;`;
-        console.log(`Mensagem inserido com sucesso: ${result[0]}`);
+        console.log(`Mensagem inserido com sucesso: ${result}`);
     } catch (error) {
     console.error("Erro ao inserir as mensagens:", error);
   }
@@ -33,7 +33,8 @@ const verificacionUser = async (idUser) => {
       FROM room
       WHERE iduser = ${idUser} AND statusroom = 'open'
       `;
-        return result[0];
+      console.log(`Realizando pesquisa de sala...`);
+        return result;
 
     } catch (error) {
         console.error("Erro ao verificar o usuario:", error);

@@ -30,22 +30,18 @@ const setExistsChatUserAndOpen = async (result) => {
   try {
     await client.set(result.iduser, JSON.stringify(result));
   } catch (err) {
-    console.error('Error creating Redis client (setExistsChatUserAndOpen):', err);
+    console.error('Erro para inserir a verificação da sala:', err);
   }
 };
 
 const setDataRoomAndUser = async (idRoom, dataUser) => {
-  await client.set(idRoom, JSON.stringify({
-    iduser: dataUser.iduser,
-    username: dataUser.username,
-    number: dataUser.number,
-  }))
+  await client.set(idRoom.toString(), JSON.stringify(dataUser))
   .then((client) => {
-        console.log('Redis Client:', client);
-      })
-      .catch((error) => {
-        console.error('Error creating Redis client (setDataRoomAndUser):', error);
-      });
+    console.log('Inserido os dados da Sala e Usuario:', client);
+  })
+  .catch((error) => {
+    console.error('Erro ao inserir os dados da Sala e do Usuario:', error);
+  });
   // await client.disconnect();
 }
 
@@ -65,7 +61,7 @@ function formatarDataHora(timestamp) {
   const ano = data.getFullYear();
 
   // Retornando a data e hora formatada
-  return [`${dia}/${mes}/${ano}`, `${horas}:${minutos}`];
+  return [`${ano}-${mes}-${dia}`, `${horas}:${minutos}`];
 }
 
 const sendMessage = async (message) => {
@@ -127,44 +123,59 @@ io.on("connection", (socket) => {
 
 });
 
-app.post("/webhook", async (req, res) => {
-  try {
-    const body = await req.body.entry[0].changes[0].value;
-    const text = await body.messages[0].text.body;
-    const wa_id = await body.contacts[0].wa_id;
-    const username = await body.contacts[0].profile.name;
-    const typeMsg = await body.messages[0].type;
-    const hora = await body.messages[0].timestamp;
+const receiveMessage = (wa_id ,message, hora) => {
+  console.log("Mensagem enviada ao front-end!")
+  io.emit("receive_message", {
+    id: wa_id,
+    msg: message,
+    hour: hora
+  });
+};
 
-    // console.log(text)
+app.post("/webhook", async (req, res) => {
+  const body = await req.body.entry[0].changes[0].value;
+  const text = await body.messages[0].text.body;
+  const wa_id = await body.contacts[0].wa_id;
+  const username = await body.contacts[0].profile.name;
+  const typeMsg = await body.messages[0].type;
+  const hora = await body.messages[0].timestamp;
+
+  try {
+    // console.log(text);
     const resultRedis = JSON.parse(await client.get(wa_id));
     const dataHora = formatarDataHora(hora)
 
-    if (resultRedis.is_valid) {
-      await io.emit("receive_message", {
-        id: wa_id,
-        msg: text,
-        hour: formatarHora(hora),
-      });
-      insertMessages(data.id, wa_id, text, dataHora[1], dataHora[0])
+    if (resultRedis && resultRedis.is_valid) {
+      if (resultRedis.is_valid) {
+        receiveMessage(wa_id, text, dataHora[1])
+        insertMessages(resultRedis.id, wa_id, text, dataHora[1], dataHora[0])
+      }
     } else {
       verificacionUser(+wa_id)
       .then(async (result) => {
-        setExistsChatUserAndOpen(result)
-        insertRoom(+wa_id, username, +wa_id, "open", null)
-        .then((data) => {
-          setDataRoomAndUser(data.id, data)
-          insertMessages(data.id, wa_id, text, dataHora[1], dataHora[0])
-          io.emit("connect_user", data);
-        });
+        if (result.length > 0) {
+          setExistsChatUserAndOpen(result[0])
+        } else {
+          insertRoom(+wa_id, username, +wa_id, "open", null)
+          .then(async (data) => {
+            console.log("Inserindo dados da sala e usuario...")
+            console.log("Enviando mensagen ao front-end...")
+            console.log(data)
+            io.emit("connect_user", data);
+            setDataRoomAndUser(data.id, data)
+            insertMessages(data.id, wa_id, text, dataHora[1], dataHora[0])
+            receiveMessage(wa_id, text, dataHora[1])
+          });
+        }
       });
     }
+
   } catch (e) {
-    const body = req.body;
-    // console.log(body);
+    console.log(e);
+    console.log(body);
   }
 
-  res.send("Teste");
+  res.sendStatus(200);
 });
 
 server.listen(3000, () => {

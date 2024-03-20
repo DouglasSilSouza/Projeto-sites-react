@@ -2,7 +2,7 @@ import '../../assets/chat/chat.css'
 import BarraContatos from './BarraContatos'
 import AreaMessages from './AreaMessages'
 import InfoContatcTop from './InfoContatcTop'
-import { useEffect } from 'react'
+import { useEffect, useLayoutEffect } from 'react'
 import useStore from '../../store/Store'
 import { useShallow } from 'zustand/react/shallow'
 
@@ -11,11 +11,15 @@ const Chat = () => {
   const [
     horaAtual,
     socket,
-    setMessages
+    setMessages,
+    setUsersOnline,
+    userSelect,
   ] = useStore( useShallow ((state) =>[
     state.horaAtual,
     state.socket,
     state.setMessages,
+    state.setUsersOnline,
+    state.userSelect,
   ]));
 
   useEffect(() => {
@@ -26,6 +30,50 @@ const Chat = () => {
   
     return () => socket.off('receive_message');
   }, [socket]);
+
+  useEffect (() => {
+    socket.on('connect_user', (usersOnline) => setUsersOnline(usersOnline));
+    return () => socket.off('connect_user');
+  }, [socket]);
+
+  useLayoutEffect (() => {
+    const handleLoad = async () => {
+      try {
+        await socket.emit('requestData'); 
+        await socket.on('initialData', (rooms) => {
+          setUsersOnline(JSON.parse(rooms));
+        });
+      } catch (error) {
+        console.error('Error fetching initial data:', error);
+      }
+    };
+
+    window.addEventListener('load', handleLoad());
+
+    return () => {
+      socket.off('initialData');
+      window.removeEventListener('load', handleLoad);
+    };
+  }, []);
+
+  useEffect (() => {
+    const handleLoad = async (idroom) => {
+      try {
+        await socket.emit('requestMessage', idroom); 
+        await socket.on('initialDataMessage', (messages) => {
+          setMessages(messages);
+        });
+      } catch (error) {
+        console.error('Error fetching initial data:', error);
+      }
+    };
+
+    if(userSelect) handleLoad(userSelect.id);
+
+    return () => {
+      socket.off('initialDataMessage');
+    };
+  }, []);
 
   const sendMessage = (e) => {
     e.preventDefault();

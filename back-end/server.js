@@ -11,6 +11,7 @@ const [
   close_service,
   open_service,
   insertMessages,
+  getMessagesDB,
 ] = require('./conDB/actionsDataBase')
 
 app.use(express.json());
@@ -23,20 +24,21 @@ client.on('connect', () => {
 client.on('error', (err) => {
     console.error('Redis Client Error:', err);
 });
+
 client.connect();
 
-// client.flushAll();
 const setExistsChatUserAndOpen = async (result) => {
   try {
-    await client.set(result.iduser, JSON.stringify(result));
+    await client.hSet("user", result.iduser.toString(), JSON.stringify(result));
   } catch (err) {
     console.error('Erro para inserir a verificação da sala:', err);
   }
 };
 
 const setDataRoomAndUser = async (idRoom, dataUser) => {
-  await client.set(idRoom.toString(), JSON.stringify(dataUser))
-  .then((client) => {
+  await client.hSet("room", idRoom.toString(), JSON.stringify(dataUser))
+  .then(async (client) => {
+    await io.emit("connect_user", dataUser);
     console.log('Inserido os dados da Sala e Usuario:', client);
   })
   .catch((error) => {
@@ -45,7 +47,7 @@ const setDataRoomAndUser = async (idRoom, dataUser) => {
   // await client.disconnect();
 }
 
-function formatarDataHora(timestamp) {
+const formatarDataHora = (timestamp) => {
   // Convertendo o timestamp para milissegundos
   const milissegundos = timestamp * 1000;
 
@@ -90,6 +92,15 @@ const sendMessage = async (message) => {
   }
 };
 
+const receiveMessage = (idroom, wa_id ,message, hora) => {
+  io.emit("receive_message", {
+    idroom: idroom,
+    iduser: wa_id,
+    msg: message,
+    hour: hora
+  });
+};
+
 io.on("connection", (socket) => {
   console.log("Usuário conectado!", socket.id);
 
@@ -121,14 +132,34 @@ io.on("connection", (socket) => {
     sendMessage(text);
   });
 
+  socket.on('requestData', () => {
+    getRooms(socket);
+  });
+
+  socket.on('requestMessage', (idroom) => {
+    getMessages(idroom, socket);
+  });
+
 });
 
-const receiveMessage = (idroom, wa_id ,message, hora) => {
-  io.emit("receive_message", {
-    idroom: idroom,
-    iduser: wa_id,
-    msg: message,
-    hour: hora
+const getRooms = async (socket) => {
+  await client.hGetAll('room')
+  .then(async (result) => {
+    await socket.emit('initialData', Object.values(result))
+  })
+  .catch((error) => {
+      console.error("Erro ao recuperar as sala:", error);
+  });
+};
+
+const getMessages = async (idroom, socket) => {
+  await getMessagesDB(idroom)
+  .then(async (data) => {
+    console.log(data);
+    await socket.emit('initialDataMessage', data)
+  })
+  .catch((err) => {
+    console.error("Erro ao recuperar as mensagens (server.js):", err);
   });
 };
 
@@ -142,10 +173,10 @@ app.post("/webhook", async (req, res) => {
 
   try {
     // console.log(text);
-    const resultRedis = JSON.parse(await client.get(wa_id));
+    const resultRedis = JSON.parse(await client.hGet("user", wa_id,));
     const dataHora = formatarDataHora(hora)
 
-    if (resultRedis && resultRedis.is_valid) {
+    if (resultRedis) {
       if (resultRedis.is_valid) {
         receiveMessage(resultRedis.id, wa_id, text, dataHora[1])
         insertMessages(resultRedis.id, wa_id, text, dataHora[1], dataHora[0])
@@ -160,7 +191,6 @@ app.post("/webhook", async (req, res) => {
           insertRoom(+wa_id, username, +wa_id, "open", null)
           .then(async (data) => {
             receiveMessage(data.id, wa_id, text, dataHora[1])
-            await io.emit("connect_user", data);
             setDataRoomAndUser(data.id, data)
             insertMessages(data.id, wa_id, text, dataHora[1], dataHora[0])
           });

@@ -22,18 +22,18 @@ const AreaMessages = () => {
         messages && messages.length > 0 && (
           messages.map((message, i) => {
             if (!message) return;
-            if (userSelect.id === message.id) {
-              return (
-                <div key={i} className={`message ${message.datamsg.id !== socket.id ? "" : "you"}`}>
+            if (userSelect.id !== message.datamsg.id) {
+              return ( messages ? 
+                <div key={i} className={`message ${message.datamsg.iduser !== socket.id ? "" : "you"}`}>
                 <p>{message.datamsg.hour}</p>
-                <div className="message-body">{message.datamsg.msg}</div>
-              </div> 
+                <div className="message-body">{message.datamsg.message}</div>
+              </div> : <div>Carregando...</div>
               )
             }
           })
         )
       }
-      <div ref={bottomRef} />
+   <div ref={bottomRef} />
     </>
   );
 };

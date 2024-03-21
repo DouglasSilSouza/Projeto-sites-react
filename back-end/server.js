@@ -28,17 +28,19 @@ client.on('error', (err) => {
 client.connect();
 
 const setExistsChatUserAndOpen = async (result) => {
-  try {
-    await client.hSet("user", result.iduser.toString(), JSON.stringify(result));
-  } catch (err) {
-    console.error('Erro para inserir a verificação da sala:', err);
-  }
+    await client.hSet("user", result.iduser.toString(), JSON.stringify(result))
+    .then(async (user) => {
+      await io.emit("connect_user", result);
+      console.log('Inserido os dados do Usuario:', user);
+    })
+    .catch((error) => {
+      console.error('Erro ao inserir os dados do Usuario:', error);
+    });
 };
 
 const setDataRoomAndUser = async (idRoom, dataUser) => {
   await client.hSet("room", idRoom.toString(), JSON.stringify(dataUser))
   .then(async (client) => {
-    await io.emit("connect_user", dataUser);
     console.log('Inserido os dados da Sala e Usuario:', client);
   })
   .catch((error) => {
@@ -85,10 +87,8 @@ const sendMessage = async (message) => {
     };
 
     const response = await axios.post("https://graph.facebook.com/v18.0/103394759172111/messages", data, { headers });
-
-    console.log(response.data);
   } catch (error) {
-    console.error('Error:', error);
+    console.error(error.response.data);
   }
 };
 
@@ -96,7 +96,7 @@ const receiveMessage = (idroom, wa_id ,message, hora) => {
   io.emit("receive_message", {
     idroom: idroom,
     iduser: wa_id,
-    msg: message,
+    message: message,
     hour: hora
   });
 };
@@ -136,8 +136,8 @@ io.on("connection", (socket) => {
     getRooms(socket);
   });
 
-  socket.on('requestMessage', (idroom) => {
-    getMessages(idroom, socket);
+  socket.on('requestMessage', (idUser) => {
+    getMessages(idUser, socket);
   });
 
 });
@@ -152,10 +152,9 @@ const getRooms = async (socket) => {
   });
 };
 
-const getMessages = async (idroom, socket) => {
-  await getMessagesDB(idroom)
+const getMessages = async (idUser, socket) => {
+  await getMessagesDB(idUser)
   .then(async (data) => {
-    console.log(data);
     await socket.emit('initialDataMessage', data)
   })
   .catch((err) => {
@@ -165,32 +164,31 @@ const getMessages = async (idroom, socket) => {
 
 app.post("/webhook", async (req, res) => {
   const body = await req.body.entry[0].changes[0].value;
-  const text = await body.messages[0].text.body;
-  const wa_id = await body.contacts[0].wa_id;
-  const username = await body.contacts[0].profile.name;
-  const typeMsg = await body.messages[0].type;
-  const hora = await body.messages[0].timestamp;
-
+  
   try {
-    // console.log(text);
+    const text = await body.messages[0].text.body;
+    const wa_id = await body.contacts[0].wa_id;
+    const username = await body.contacts[0].profile.name;
+    const typeMsg = await body.messages[0].type;
+    const hora = await body.messages[0].timestamp;
     const resultRedis = JSON.parse(await client.hGet("user", wa_id,));
     const dataHora = formatarDataHora(hora)
 
     if (resultRedis) {
-      if (resultRedis.is_valid) {
         receiveMessage(resultRedis.id, wa_id, text, dataHora[1])
         insertMessages(resultRedis.id, wa_id, text, dataHora[1], dataHora[0])
-      }
     } else {
       verificacionUser(+wa_id)
       .then(async (result) => {
         if (result.length > 0) {
           receiveMessage(result.id, wa_id, text, dataHora[1])
+          console.log("Nova mensagem e não criado mais um usuario")
           setExistsChatUserAndOpen(result[0])
         } else {
           insertRoom(+wa_id, username, +wa_id, "open", null)
           .then(async (data) => {
             receiveMessage(data.id, wa_id, text, dataHora[1])
+            setExistsChatUserAndOpen(data)
             setDataRoomAndUser(data.id, data)
             insertMessages(data.id, wa_id, text, dataHora[1], dataHora[0])
           });
@@ -200,7 +198,7 @@ app.post("/webhook", async (req, res) => {
 
   } catch (e) {
     console.log(e);
-    console.log(body);
+    console.log(body)
   }
 
   res.sendStatus(200);

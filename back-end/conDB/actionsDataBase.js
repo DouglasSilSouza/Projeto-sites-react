@@ -24,10 +24,10 @@ const insertMessages = async (idRoom, idMessage, message, hourMessage, date) => 
   }
 }
 
-const getMessagesDB = async (idroom) => {
+const getMessagesDB = async (idUser) => {
   try {
-    const result = await sql`SELECT * FROM messages WHERE idroom = ${idroom}`
-    return result[0];
+    const result = await sql`SELECT * FROM messages WHERE idroom = ${idUser}`
+    return result;
   } catch (error) {
     console.error("Erro ao obter as mensagens (DataBase):", error);
   }

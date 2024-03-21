@@ -108,6 +108,7 @@ body {
   display: grid;
   grid-template-rows: max-content 1fr max-content;
   flex: 1 2 50%;
+  max-height: 95vh;
 }
 
 #content #contact {

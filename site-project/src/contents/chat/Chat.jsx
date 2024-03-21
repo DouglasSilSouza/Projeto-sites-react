@@ -2,7 +2,7 @@ import '../../assets/chat/chat.css'
 import BarraContatos from './BarraContatos'
 import AreaMessages from './AreaMessages'
 import InfoContatcTop from './InfoContatcTop'
-import { useEffect, useLayoutEffect } from 'react'
+import { useEffect, useLayoutEffect, useRef } from 'react'
 import useStore from '../../store/Store'
 import { useShallow } from 'zustand/react/shallow'
 
@@ -25,7 +25,7 @@ const Chat = () => {
   useEffect(() => {
     socket.on('receive_message', data => {
       console.log(data)
-      setMessages({idSala: data.idroom, datamsg: { iduser: data.iduser, msg: data.msg, hour: data.hour, destinatary: true}});
+      setMessages({idroom: data.idroom, datamsg: { iduser: data.iduser, message: data.message, hour: data.hour}});
     });
   
     return () => socket.off('receive_message');
@@ -57,28 +57,30 @@ const Chat = () => {
   }, []);
 
   useEffect (() => {
-    const handleLoad = async (idroom) => {
+    const handleLoad = async (idUser) => {
       try {
-        await socket.emit('requestMessage', idroom); 
+        await socket.emit('requestMessage', idUser); 
         await socket.on('initialDataMessage', (messages) => {
-          setMessages(messages);
+          messages.map((message) => {
+            setMessages({idroom: message.idroom, datamsg: { iduser: message.idmessage, message: message.message, hour: message.hourmessage}});
+          })
         });
       } catch (error) {
         console.error('Error fetching initial data:', error);
       }
     };
 
-    if(userSelect) handleLoad(userSelect.id);
+    if(userSelect.id !== undefined) handleLoad(userSelect.id);
 
     return () => {
       socket.off('initialDataMessage');
     };
-  }, []);
+  }, [userSelect]);
 
   const sendMessage = (e) => {
     e.preventDefault();
     const messageText = e.target.elements.message.value;
-    setMessages({ id: socket.id, msg: messageText, hour: horaAtual, destinatary: false})
+    setMessages({idroom: userSelect.id, datamsg: { iduser: socket.id, message: messageText, hour: horaAtual}})
     socket.emit('message', messageText)
     e.target.elements.message.value = '';
   };

@@ -14,7 +14,7 @@ const useStore = create((set) => {
         removeUsersOnline: (id) => set((state) => ({ usersOnline: state.usersOnline.filter((setUsersOnline) => setUsersOnline.id!== id) })),
 
         userSelect: [],
-        selectedUser: (user) => set((state) => ({userSelect: user})),
+        selectedUser: (user) => set(() => ({userSelect: user})),
 
         horaAtual : horaAtual,
 

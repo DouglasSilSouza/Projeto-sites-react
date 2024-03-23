@@ -2,7 +2,7 @@ import '../../assets/chat/chat.css'
 import BarraContatos from './BarraContatos'
 import AreaMessages from './AreaMessages'
 import InfoContatcTop from './InfoContatcTop'
-import { useEffect, useLayoutEffect, useRef } from 'react'
+import { useEffect, useLayoutEffect } from 'react'
 import useStore from '../../store/Store'
 import { useShallow } from 'zustand/react/shallow'
 
@@ -22,25 +22,31 @@ const Chat = () => {
     state.userSelect,
   ]));
 
-  useEffect(() => {
+  const receiveMessage = () => {
     socket.on('receive_message', data => {
       console.log(data)
       setMessages({idroom: data.idroom, datamsg: { iduser: data.iduser, message: data.message, hour: data.hour}});
     });
   
     return () => socket.off('receive_message');
-  }, [socket]);
+  }
 
-  useEffect (() => {
+  const connectUser = () => {
     socket.on('connect_user', (usersOnline) => setUsersOnline(usersOnline));
     return () => socket.off('connect_user');
-  }, [socket]);
+  }
+
+  useEffect(() => {
+    receiveMessage()
+    connectUser()
+    
+  }, []);
 
   useLayoutEffect (() => {
     const handleLoad = async () => {
       try {
-        await socket.emit('requestData'); 
-        await socket.on('initialData', (rooms) => {
+        await socket.emit('requestRoom'); 
+        await socket.on('initialDataRooms', (rooms) => {
           setUsersOnline(JSON.parse(rooms));
         });
       } catch (error) {
@@ -48,11 +54,10 @@ const Chat = () => {
       }
     };
 
-    window.addEventListener('load', handleLoad());
+    handleLoad();
 
     return () => {
-      socket.off('initialData');
-      window.removeEventListener('load', handleLoad);
+      socket.off('initialDataRooms');
     };
   }, []);
 

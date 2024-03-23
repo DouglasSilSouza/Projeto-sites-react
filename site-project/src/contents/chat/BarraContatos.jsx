@@ -14,31 +14,24 @@ const BarraContatos = () => {
     state.socket,
   ]))
 
-  const open_service = (socketID, contactID) => {
-    socket.emit(socketID, contactID)
-  }
-
   return (
-    <>
-      <ul>
-        {
-          usersOnline.map((contact) => {
-            if (socket.id !== contact.id) {
-              return (
-                <li key={contact.id} onClick={() => selectedUser(contact)} className={contact.id === userSelect.id ? "select" : ""}>
-                  <i className="ph ph-user"></i>
-                  <span>
-                    <strong>{contact.username ?? "Anonimo"}</strong>
-                    <p>{contact.number}</p>
-                  </span>
-                  <button type="button" onClick={open_service(socket.id, contact.id)}><i className="ph ph-check"></i></button>
-                </li>
-              );
-            }
-          })
-        }
-      </ul>
-    </>
+    <ul>
+      {
+        usersOnline.map((contact) => {
+          if (socket.id !== contact.id || usersOnline.statusroom === "open") {
+            return (
+              <li key={contact.id} onClick={() => selectedUser(contact)} className={contact.id === userSelect.id ? "select" : ""}>
+                <i className="ph ph-user"></i>
+                <span>
+                  <strong>{contact.username ?? "Anonimo"}</strong>
+                  <p>{contact.number}</p>
+                </span>
+              </li>
+            );
+          }
+        })
+      }
+    </ul>
   );
 };
 

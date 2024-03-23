@@ -122,6 +122,8 @@ body {
   border-radius: 0 3rem 0 0;
 }
 
+
+
 #content #contact i {
   background-color: #234b56;
   font-size: 6rem;
@@ -131,21 +133,6 @@ body {
 
 #content #contact span {
   gap: 1rem;
-}
-
-#content #contact button {
-  padding: 1.7rem 2rem;
-  border-radius: 1rem;
-  background-color: #00303d;
-  border: none;
-  color: #ddd;
-  cursor: pointer;
-  font-size: 2rem;
-  margin-left: auto;
-}
-
-#content #contact button:hover {
-  opacity: 0.8;
 }
 
 #content #message-content {

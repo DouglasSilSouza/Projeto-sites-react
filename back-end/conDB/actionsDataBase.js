@@ -24,9 +24,18 @@ const insertMessages = async (idRoom, idMessage, message, hourMessage, date) => 
   }
 }
 
+const getRoomsDB = async () => {
+  try {
+    const result = await sql`SELECT * FROM room;`
+    return result;
+  } catch (error) {
+    console.error("Erro ao obter as Salas (DataBase):", error);
+  }
+}
+
 const getMessagesDB = async (idUser) => {
   try {
-    const result = await sql`SELECT * FROM messages WHERE idroom = ${idUser}`
+    const result = await sql`SELECT * FROM messages WHERE idroom = ${idUser};`
     return result;
   } catch (error) {
     console.error("Erro ao obter as mensagens (DataBase):", error);
@@ -55,7 +64,7 @@ const close_service = async (idUser) => {
 };
 
 const open_service = async (idAgent, idUser) => {
-    const open = await sql`UPDATE room SET agent = '${idAgent}' WHERE iduser = ${idUser};`
+    const open = await sql`UPDATE room SET agent = '${idAgent}', statusroom = 'opering'  WHERE iduser = ${idUser};`
     return open;
 };
 
@@ -65,5 +74,6 @@ module.exports = [
     close_service,
     open_service,
     insertMessages,
+    getRoomsDB,
     getMessagesDB
 ];

@@ -11,6 +11,7 @@ const [
   close_service,
   open_service,
   insertMessages,
+  getRoomsDB,
   getMessagesDB,
 ] = require('./conDB/actionsDataBase')
 
@@ -132,7 +133,7 @@ io.on("connection", (socket) => {
     sendMessage(text);
   });
 
-  socket.on('requestData', () => {
+  socket.on('requestRoom', () => {
     getRooms(socket);
   });
 
@@ -145,10 +146,25 @@ io.on("connection", (socket) => {
 const getRooms = async (socket) => {
   await client.hGetAll('room')
   .then(async (result) => {
-    await socket.emit('initialData', Object.values(result))
+    if (result) {
+      console.log("Pesquisando as salas(redis)...")
+      await socket.emit('initialDataRooms', Object.values(result))
+    } else {
+      await getRoomsDB()
+      .then(async (datas) => {
+        console.log("Pesquisando as salas(Banco de dados)...")
+        datas.map(async (data) => {
+          await client.hSet("room", data.id.toString(), JSON.stringify(data))
+          await socket.emit('initialDataRooms', Object.values(data))
+        })
+      })
+      .catch((error) => {
+        console.error("Erro ao recuperar as sala no Banco de dados no lado do servidor:", error);
+    });
+    }
   })
   .catch((error) => {
-      console.error("Erro ao recuperar as sala:", error);
+      console.error("Erro ao recuperar as sala no Redis:", error);
   });
 };
 
@@ -182,7 +198,6 @@ app.post("/webhook", async (req, res) => {
       .then(async (result) => {
         if (result.length > 0) {
           receiveMessage(result.id, wa_id, text, dataHora[1])
-          console.log("Nova mensagem e não criado mais um usuario")
           setExistsChatUserAndOpen(result[0])
         } else {
           insertRoom(+wa_id, username, +wa_id, "open", null)

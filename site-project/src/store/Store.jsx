@@ -9,7 +9,7 @@ const horaAtual = new Date().toLocaleString('pt-BR', {
 const useStore = create((set) => {
     return {
         usersOnline: [],
-        setUsersOnline: (newUser) => set((state) => ({ usersOnline: [...state.usersOnline.filter((user) => user.id !== newUser.id), newUser, ],})),
+        setUsersOnline: (newUser) => set((state) => ({ usersOnline: [...state.usersOnline, newUser]})),
 
         removeUsersOnline: (id) => set((state) => ({ usersOnline: state.usersOnline.filter((setUsersOnline) => setUsersOnline.id!== id) })),
 
@@ -20,9 +20,6 @@ const useStore = create((set) => {
 
         socket: null,
         setSocket: (socket) => set((state) => ({ socket })),
-
-        salas: {},
-        setSalas: (salas) => set((state) => ({ salas: {...state.salas, ...salas } })),
 
         messages: [],
         setMessages:(messages) => set((state) => ({messages: [...state.messages, messages]})),
